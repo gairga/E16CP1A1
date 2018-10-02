@@ -1,1 +1,129 @@
 ##Queries
+
+postgres=# create database call_list with owner test;
+CREATE DATABASE
+postgres=# \l
+                                  List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
+-----------+----------+----------+-------------+-------------+-----------------------
+ call_list | test     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+(4 rows)
+
+postgres=# \q
+postgres@CL-IT00139:~$ psql -U test call_list
+psql (9.5.14)
+Type "help" for help.
+
+call_list=> create table users (id int NOT NULL, first_name varchar NOT NULL, email varchar, PRIMARY KEY(ID)); 
+CREATE TABLE
+call_list=> insert into users (id, first_name, email) values (1,'Carlos','carlos@gmail.com');
+INSERT 0 1
+call_list=> insert into users (id, first_name, email) values (2,'Laura','carlos@gmail.com');
+INSERT 0 1
+call_list=> insert into users (id, first_name, email) values (3,'Gabriela','gabrielailarreta@gmail.com');
+INSERT 0 1
+call_list=> insert into users (id, first_name, email) values (4,'Antonio','antonio@gmail.com');
+INSERT 0 1
+call_list=> create table calls (id int NOT NULL, phone integer, fecha date, PRIMARY KEY (ID), FOREIGN KEY (pk_users) REFERENCES users(id)); 
+ERROR:  column "pk_users" referenced in foreign key constraint does not exist
+call_list=> create table calls (id int NOT NULL, phone integer, fecha date, users_id int, PRIMARY KEY (ID), FOREIGN KEY (users_id) REFERENCES users(id)); 
+CREATE TABLE
+call_list=> ALTER TABLE users ADD last_name varchar;
+ALTER TABLE
+call_list=> UPDATE users SET last_name='Rodriguez' WHERE id=1;
+UPDATE 1
+call_list=> select * from users where id=1;
+ id | first_name |      email       | last_name 
+----+------------+------------------+-----------
+  1 | Carlos     | carlos@gmail.com | Rodriguez
+(1 row)
+
+call_list=> select * from users;
+ id | first_name |           email            | last_name 
+----+------------+----------------------------+-----------
+  2 | Laura      | carlos@gmail.com           | 
+  3 | Gabriela   | gabrielailarreta@gmail.com | 
+  4 | Antonio    | antonio@gmail.com          | 
+  1 | Carlos     | carlos@gmail.com           | Rodriguez
+(4 rows)
+
+call_list=> UPDATE users SET last_name='Perez' WHERE id=2;
+UPDATE 1
+call_list=> UPDATE users SET last_name='Ilarreta' WHERE id=3;
+UPDATE 1
+call_list=> select * from users;
+ id | first_name |           email            | last_name 
+----+------------+----------------------------+-----------
+  4 | Antonio    | antonio@gmail.com          | 
+  1 | Carlos     | carlos@gmail.com           | Rodriguez
+  2 | Laura      | carlos@gmail.com           | Perez
+  3 | Gabriela   | gabrielailarreta@gmail.com | Ilarreta
+(4 rows)
+
+call_list=> select * from calls;
+ id | phone | fecha | users_id 
+----+-------+-------+----------
+(0 rows)
+
+call_list=> insert into calls (id, phone, fecha, users_id) values (6,2344233,2018-02-02,2);
+ERROR:  column "fecha" is of type date but expression is of type integer
+LINE 1: ...ls (id, phone, fecha, users_id) values (6,2344233,2018-02-02...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+call_list=> insert into calls (id, phone, fecha, users_id) values (6,2344233,'2018-02-02',2);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (5,2344233,'2018-01-02',2);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (4,2344233,'2018-01-02',2);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (3,2344233,'2018-04-02',2);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (2,2344233,'2018-10-02',2);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (1,2344233,'2018-10-05',2);
+INSERT 0 1
+call_list=> select * from calls;
+ id |  phone  |   fecha    | users_id 
+----+---------+------------+----------
+  6 | 2344233 | 2018-02-02 |        2
+  5 | 2344233 | 2018-01-02 |        2
+  4 | 2344233 | 2018-01-02 |        2
+  3 | 2344233 | 2018-04-02 |        2
+  2 | 2344233 | 2018-10-02 |        2
+  1 | 2344233 | 2018-10-05 |        2
+(6 rows)
+
+call_list=> insert into calls (id, phone, fecha, users_id) values (7,2344233,'2018-01-20',1);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (8,2344233,'2018-02-20',1);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (9,2344233,'2018-03-20',1);
+INSERT 0 1
+call_list=> insert into calls (id, phone, fecha, users_id) values (10,2344233,'2018-04-20',1);
+INSERT 0 1
+call_list=> select * from calls;
+ id |  phone  |   fecha    | users_id 
+----+---------+------------+----------
+  6 | 2344233 | 2018-02-02 |        2
+  5 | 2344233 | 2018-01-02 |        2
+  4 | 2344233 | 2018-01-02 |        2
+  3 | 2344233 | 2018-04-02 |        2
+  2 | 2344233 | 2018-10-02 |        2
+  1 | 2344233 | 2018-10-05 |        2
+  7 | 2344233 | 2018-01-20 |        1
+  8 | 2344233 | 2018-02-20 |        1
+  9 | 2344233 | 2018-03-20 |        1
+ 10 | 2344233 | 2018-04-20 |        1
+(10 rows)
+
+ call_list=> SELECT count(c.users_id), u.first_name FROM users u, calls c WHere c.users_id=u.id GROUP BY u.first_name;
+ count | first_name 
+-------+------------
+     4 | Carlos
+     6 | Laura
+(2 rows)
